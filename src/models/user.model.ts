@@ -17,6 +17,10 @@ class User extends Model {
   public MFA!: boolean;
   public accountStatus!: AccountStatus;
   public notificationPreference!: NotificationList;
+  public otp?: string;
+  public otpExpiry?: Date;
+  public createdAt!: Date;
+  public updatedAt!: Date;
 
   async comparePassword(candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password);
@@ -74,19 +78,27 @@ User.init(
         }
       },
       defaultValue: Object.values(NotificationList)
+    },
+    otp: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    otpExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   },
   {
     sequelize,
     modelName: 'User',
-    hooks: {
-      beforeSave: async (user: User) => {
-        if (user.changed('password')) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      }
-    }
+    // hooks: {
+    //   beforeSave: async (user: User) => {
+    //     if (user.changed('password')) {
+    //       const salt = await bcrypt.genSalt(10);
+    //       user.password = await bcrypt.hash(user.password, salt);
+    //     }
+    //   }
+    // }
   }
 );
 

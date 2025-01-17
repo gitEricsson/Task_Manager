@@ -1,4 +1,9 @@
 import { QueryInterface, DataTypes } from 'sequelize';
+import {
+  UserRoles,
+  AccountStatus,
+  NotificationList
+} from '../constants/enums.constants';
 
 export async function up(queryInterface: QueryInterface) {
   await queryInterface.createTable('Users', {
@@ -21,8 +26,41 @@ export async function up(queryInterface: QueryInterface) {
       allowNull: true
     },
     role: {
-      type: DataTypes.ENUM('admin', 'user'),
-      defaultValue: 'user'
+      type: DataTypes.ENUM(...Object.values(UserRoles)),
+      defaultValue: UserRoles.USER
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    MFA: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    accountStatus: {
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [Object.values(AccountStatus)]
+      },
+      defaultValue: AccountStatus.ACTIVE
+    },
+    notificationPreference: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      validate: {
+        isIn: {
+          args: [Object.values(NotificationList)],
+          msg: 'Notification preference must be one of the allowed values.'
+        }
+      },
+      defaultValue: Object.values(NotificationList)
+    },
+    otp: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    otpExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true
     },
     createdAt: {
       type: DataTypes.DATE,

@@ -58,7 +58,7 @@ class TaskController {
         data: task
       });
     } catch (error) {
-      if (error.message === 'Task not found') {
+      if (error instanceof Error && error.message === 'Task not found') {
         return res.status(404).json({ error: error.message });
       }
       next(error);

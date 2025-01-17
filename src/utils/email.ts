@@ -2,6 +2,23 @@ import nodemailer from 'nodemailer';
 import { convert as htmlToText } from 'html-to-text';
 import AppConfig from '../config/app.config';
 
+import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+
+const poolOptions = {
+  pool: true,
+  maxConnections: 1,
+  maxMessages: 5
+};
+
+const smtpOptions = {
+  host: AppConfig.sendEmail.EMAIL_HOST,
+  port: AppConfig.sendEmail.EMAIL_PORT,
+  auth: {
+    user: AppConfig.sendEmail.EMAIL_USERNAME,
+    pass: AppConfig.sendEmail.EMAIL_PASSWORD
+  }
+};
+
 export default class Email {
   to: string;
   from: string;
@@ -25,14 +42,13 @@ export default class Email {
       });
     }
 
-    return nodemailer.createTransport({
-      host: AppConfig.sendEmail.EMAIL_HOST,
-      port: AppConfig.sendEmail.EMAIL_PORT,
-      auth: {
-        user: AppConfig.sendEmail.EMAIL_USERNAME,
-        pass: AppConfig.sendEmail.EMAIL_PASSWORD
-      }
-    });
+    const nodemailerOptions: SMTPTransport.Options = {
+      ...poolOptions,
+      ...smtpOptions,
+      port: parseInt(AppConfig.sendEmail.EMAIL_PORT)
+    };
+
+    return nodemailer.createTransport(nodemailerOptions);
   }
 
   // Send the actual email

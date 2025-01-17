@@ -31,5 +31,5 @@ exports.authDependencies = [
 // Service instances with dependencies
 const taskService = task_service_1.default.getInstance(exports.taskRepository);
 exports.taskService = taskService;
-const otpService = otp_service_1.default.getInstance(exports.hash, exports.guard, userService);
+const otpService = otp_service_1.default.getInstance(exports.hash, exports.guard, userService, exports.userRepository);
 exports.otpService = otpService;

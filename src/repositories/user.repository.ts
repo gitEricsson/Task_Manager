@@ -138,6 +138,46 @@ class UserRepository {
     const deleted = await User.destroy({ where: { id: userId } });
     return deleted > 0;
   }
+
+  async findAndUpdateOTP(email: string, otp: string, otpExpiry: Date) {
+    const [updatedCount, [updatedUser]] = await User.update(
+      {
+        otp,
+        otpExpiry
+      },
+      {
+        where: { email },
+        returning: true
+      }
+    );
+
+    if (!updatedCount) {
+      throw new CustomAPIError('User not found', 404);
+    }
+
+    return updatedUser;
+  }
+
+  async getOTP(email: string) {
+    const user = await User.findOne({
+      where: {
+        email,
+        otpExpiry: {
+          [Op.gt]: new Date() // Check if OTP hasn't expired
+        }
+      },
+      attributes: ['otp', 'otpExpiry']
+    });
+
+    if (!user) {
+      throw new CustomAPIError('Invalid or expired OTP', 400);
+    }
+
+    return {
+      otp: user.otp,
+      otpExpiry: user.otpExpiry
+    };
+  }
 }
 
 export default UserRepository;

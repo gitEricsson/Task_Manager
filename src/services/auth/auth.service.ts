@@ -122,11 +122,7 @@ class AuthService {
     }
 
     // Issue token for non MFA users
-    const accesses = await this.issueToken(
-      user.id,
-      user.email,
-      user.role
-    );
+    const accesses = await this.issueToken(user.id, user.email, user.role);
     const { password: userPassword, ...rest } = user; // Remove the password from the user object
     const data = {
       ...rest,
@@ -252,11 +248,7 @@ class AuthService {
 
     if (!user) throw new AuthenticationError('Invalid email');
 
-    const tokens = await this.issueToken(
-  user.id,
-      user.email,
-      user.role
-    );
+    const tokens = await this.issueToken(user.id, user.email, user.role);
 
     const data = {
       userId: String(user.id),

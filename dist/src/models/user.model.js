@@ -73,17 +73,25 @@ User.init({
             }
         },
         defaultValue: Object.values(enums_constants_1.NotificationList)
+    },
+    otp: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true
+    },
+    otpExpiry: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true
     }
 }, {
     sequelize: db_config_1.sequelize,
     modelName: 'User',
-    hooks: {
-        beforeSave: (user) => __awaiter(void 0, void 0, void 0, function* () {
-            if (user.changed('password')) {
-                const salt = yield bcrypt_1.default.genSalt(10);
-                user.password = yield bcrypt_1.default.hash(user.password, salt);
-            }
-        })
-    }
+    // hooks: {
+    //   beforeSave: async (user: User) => {
+    //     if (user.changed('password')) {
+    //       const salt = await bcrypt.genSalt(10);
+    //       user.password = await bcrypt.hash(user.password, salt);
+    //     }
+    //   }
+    // }
 });
 exports.default = User;

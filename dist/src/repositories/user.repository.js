@@ -12,7 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const sequelize_1 = require("sequelize");
 const user_model_1 = __importDefault(require("../models/user.model"));
+const customAPIError_util_1 = __importDefault(require("../utils/errors/customAPIError.util"));
 class UserRepository {
     constructor() { }
     static getInstance() {
@@ -144,6 +146,41 @@ class UserRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const deleted = yield user_model_1.default.destroy({ where: { id: userId } });
             return deleted > 0;
+        });
+    }
+    findAndUpdateOTP(email, otp, otpExpiry) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [updatedCount, [updatedUser]] = yield user_model_1.default.update({
+                otp,
+                otpExpiry
+            }, {
+                where: { email },
+                returning: true
+            });
+            if (!updatedCount) {
+                throw new customAPIError_util_1.default('User not found', 404);
+            }
+            return updatedUser;
+        });
+    }
+    getOTP(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield user_model_1.default.findOne({
+                where: {
+                    email,
+                    otpExpiry: {
+                        [sequelize_1.Op.gt]: new Date() // Check if OTP hasn't expired
+                    }
+                },
+                attributes: ['otp', 'otpExpiry']
+            });
+            if (!user) {
+                throw new customAPIError_util_1.default('Invalid or expired OTP', 400);
+            }
+            return {
+                otp: user.otp,
+                otpExpiry: user.otpExpiry
+            };
         });
     }
 }

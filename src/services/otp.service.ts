@@ -7,26 +7,40 @@ import AppConfig from '../config/app.config';
 import { OTPTypes, UserRoles } from '../constants/enums.constants';
 import { getUserData } from '../utils/switch.utils';
 import Email from '../utils/email';
+import UserRepository from '../repositories/user.repository';
 
 class OtpService {
   private static instance: OtpService;
   hashData: HashData;
   guard: Guard;
   authService: AuthService;
+  userRepository: UserRepository;
 
-  constructor(hashData: HashData, guard: Guard, authService: AuthService) {
+  constructor(
+    hashData: HashData,
+    guard: Guard,
+    authService: AuthService,
+    userRepository: UserRepository
+  ) {
     this.hashData = hashData;
     this.guard = guard;
     this.authService = authService;
+    this.userRepository = userRepository;
   }
 
   public static getInstance(
     hashData: HashData,
     guard: Guard,
-    authService: AuthService
+    authService: AuthService,
+    userRepository: UserRepository
   ): OtpService {
     if (!OtpService.instance) {
-      OtpService.instance = new OtpService(hashData, guard, authService);
+      OtpService.instance = new OtpService(
+        hashData,
+        guard,
+        authService,
+        userRepository
+      );
     }
     return OtpService.instance;
   }
@@ -86,6 +100,11 @@ class OtpService {
       default:
         throw new BadRequestError('Invalid otp type');
     }
+    // Convert duration to Date object
+    const expiryDate = new Date(Date.now() + duration * 60 * 1000);
+
+    // Save OTP to database
+    await this.userRepository.findAndUpdateOTP(email, otp, expiryDate);
 
     const emailTo = email;
 
@@ -107,9 +126,11 @@ class OtpService {
 
     const { id } = user;
 
-    // Get the otp from the redis cache
-    const hashedOtp = await redis.get(`${type}:${id}`);
-    if (!hashedOtp) {
+    // Get the saved OTP and check expiry
+    const { otp: hashedOtp, otpExpiry } = await this.userRepository.getOTP(
+      email
+    );
+    if (!hashedOtp || !otpExpiry || new Date() > otpExpiry) {
       throw new BadRequestError('Expired or invalid OTP');
     }
 

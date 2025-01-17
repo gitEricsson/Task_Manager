@@ -36,40 +36,42 @@ class AuthMiddleware {
       }
       return next(new AuthorizationError('Unauthorized access❗'));
     } catch (error) {
-      switch (error.name) {
-        // Expired token
-        case 'TokenExpiredError': {
-          error.message = 'Session expired!: Login and try again';
-          res.status(403).json({
-            status: false,
-            message: error.message
-          });
-          break;
-        }
+      if (error instanceof Error) {
+        switch (error.name) {
+          // Expired token
+          case 'TokenExpiredError': {
+            error.message = 'Session expired!: Login and try again';
+            res.status(403).json({
+              status: false,
+              message: error.message
+            });
+            break;
+          }
 
-        // Invalid token
-        case 'JsonWebTokenError': {
-          error.message = 'Invalid token!: Login and try again';
-          res.status(401).json({
-            status: false,
-            message: error.message
-          });
-          break;
-        }
+          // Invalid token
+          case 'JsonWebTokenError': {
+            error.message = 'Invalid token!: Login and try again';
+            res.status(401).json({
+              status: false,
+              message: error.message
+            });
+            break;
+          }
 
-        //Inactive token
-        case 'NotBeforeError': {
-          error.message = 'Inactive token!: Login and try again';
-          res.status(401).json({
-            status: false,
-            message: error.message
-          });
-          break;
-        }
+          //Inactive token
+          case 'NotBeforeError': {
+            error.message = 'Inactive token!: Login and try again';
+            res.status(401).json({
+              status: false,
+              message: error.message
+            });
+            break;
+          }
 
-        default:
-          next(error);
-          break;
+          default:
+            next(error);
+            break;
+        }
       }
     }
   }

@@ -10,7 +10,8 @@ import { userRepository } from '../dependencies/dependencies';
  */
 const RoleToModelMap: { [k: string]: typeof User } = {
   [UserRoles.ADMIN]: User,
-  [UserRoles.USER]: User
+  [UserRoles.USER]: User,
+  [UserRoles.MANAGER]: User
 };
 
 /**
@@ -38,7 +39,11 @@ export const createUserProfile = async (
 
     return newUser;
   } catch (error) {
-    throw new Error(`Failed to create user profile: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create user profile: ${error.message}`);
+    } else {
+      throw new Error('Failed to create user profile: Unknown error');
+    }
   }
 };
 
@@ -63,6 +68,10 @@ export const getUserData = async (
     const userData = await userRepository.findMe(userId);
     return userData;
   } catch (error) {
-    throw new Error(`Failed to fetch user data: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch user data: ${error.message}`);
+    } else {
+      throw new Error('Failed to fetch user data: Unknown error');
+    }
   }
 };

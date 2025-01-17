@@ -95,27 +95,29 @@ class AuthController {
         message: 'Password reset code successfully sent to mail!'
       });
     } catch (e) {
-      switch (e.name) {
-        case 'AuthError':
-          return res.status(401).json({
-            success: false,
-            message: e.message
-          });
-        case 'InterfaceError':
-          return res.status(400).json({
-            success: false,
-            message: e.message
-          });
-        case 'DuplicateError':
-          return res.status(409).json({
-            success: false,
-            message: e.message
-          });
-        default:
-          return res.status(404).json({
-            success: false,
-            message: e.message
-          });
+      if (e instanceof Error) {
+        switch (e.name) {
+          case 'AuthError':
+            return res.status(401).json({
+              success: false,
+              message: e.message
+            });
+          case 'InterfaceError':
+            return res.status(400).json({
+              success: false,
+              message: e.message
+            });
+          case 'DuplicateError':
+            return res.status(409).json({
+              success: false,
+              message: e.message
+            });
+          default:
+            return res.status(404).json({
+              success: false,
+              message: e.message
+            });
+        }
       }
     }
   }
@@ -131,21 +133,17 @@ class AuthController {
         });
       }
     } catch (err) {
-      console.log('ctrl-catch', err.name);
+      if (err instanceof Error) {
+        console.log('ctrl-catch', err.name);
+      }
       next(err);
     }
   }
 
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { token, newPassword, confirmPassword, userId } = req.body;
-
-      let credentials = {
-        token,
-        newPassword,
-        confirmPassword,
-        userId
-      };
+      const { newPassword, confirmPassword, userId } = req.body;
+      const credentials = { newPassword, confirmPassword, userId };
 
       const user = await this.authService.resetPassword(credentials);
       if (user) {
@@ -156,7 +154,11 @@ class AuthController {
         });
       }
     } catch (err) {
-      console.log('ctrl-catch', err.name);
+      if (err instanceof Error) {
+        console.log('ctrl-catch', err.name);
+      } else {
+        console.log('ctrl-catch', 'An unknown error occurred');
+      }
       next(err);
     }
   }
@@ -169,11 +171,15 @@ class AuthController {
       return handleResponse({
         res,
         statusCode: StatusCodes.OK,
-        message: 'MFA updated successfully',
-        data
+        message: 'MFA updated successfully'
       });
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.log('ctrl-catch', err.name);
+      } else {
+        console.log('ctrl-catch', 'An unknown error occurred');
+      }
+      next(err);
     }
   }
 }

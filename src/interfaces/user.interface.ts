@@ -14,4 +14,8 @@ export interface IUser {
   MFA: boolean;
   accountStatus: AccountStatus;
   notificationPreference: NotificationList;
+  otp?: string;
+  otpExpiry?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

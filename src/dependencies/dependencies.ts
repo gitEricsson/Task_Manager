@@ -29,7 +29,12 @@ export const authDependencies: [Guard, UserRepository, RefreshTokenBrain] = [
 
 // Service instances with dependencies
 const taskService = TaskService.getInstance(taskRepository);
-const otpService = OtpService.getInstance(hash, guard, userService);
+const otpService = OtpService.getInstance(
+  hash,
+  guard,
+  userService,
+  userRepository
+);
 
 // Export all services
 export { userService, otpService, taskService };

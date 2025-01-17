@@ -21,7 +21,8 @@ const dependencies_1 = require("../dependencies/dependencies");
  */
 const RoleToModelMap = {
     [enums_constants_1.UserRoles.ADMIN]: user_model_1.default,
-    [enums_constants_1.UserRoles.USER]: user_model_1.default
+    [enums_constants_1.UserRoles.USER]: user_model_1.default,
+    [enums_constants_1.UserRoles.MANAGER]: user_model_1.default
 };
 /**
  * Logic to handle the creation of a user profile

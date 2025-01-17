@@ -2,7 +2,7 @@ import express from 'express';
 import { Request, Response, NextFunction, Application } from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import xss from 'xss-clean';
+// import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 // const compression = require('compression');
 
@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // Data sanitization against XSS
-app.use(xss());
+// app.use(xss());
 
 // compress responses
 // app.use(compression());

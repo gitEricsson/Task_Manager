@@ -1,9 +1,8 @@
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { IUser } from '../interfaces/user.interface';
-import crypto from 'crypto';
-import AppConfig from '../config/app.config';
 import { Model } from 'sequelize';
+import sequelize, { ValidationError } from 'sequelize';
 
 export const uniqueId: () => string = (): string => uuidv4();
 
@@ -46,16 +45,16 @@ export const validateInput = async ({
     };
     return successData;
   } catch (validationError) {
-    if (validationError) {
-      const errorMessages = Object.entries(validationError.errors).map(
-        ([field, error]) => {
-          const errorMessage = (error as { message: string }).message; // Type assertion to ensure 'message' exists
-          return {
-            field,
-            message: errorMessage
-          };
-        }
-      );
+    if (validationError instanceof ValidationError) {
+      const errorMessages = Object.entries(
+        (validationError as ValidationError).errors
+      ).map(([field, error]) => {
+        const errorMessage = (error as { message: string }).message; // Type assertion to ensure 'message' exists
+        return {
+          field,
+          message: errorMessage
+        };
+      });
 
       const errorData = {
         message: 'Validation failed',

@@ -31,14 +31,15 @@ const enums_constants_1 = require("../constants/enums.constants");
 const switch_utils_1 = require("../utils/switch.utils");
 const email_1 = __importDefault(require("../utils/email"));
 class OtpService {
-    constructor(hashData, guard, authService) {
+    constructor(hashData, guard, authService, userRepository) {
         this.hashData = hashData;
         this.guard = guard;
         this.authService = authService;
+        this.userRepository = userRepository;
     }
-    static getInstance(hashData, guard, authService) {
+    static getInstance(hashData, guard, authService, userRepository) {
         if (!OtpService.instance) {
-            OtpService.instance = new OtpService(hashData, guard, authService);
+            OtpService.instance = new OtpService(hashData, guard, authService, userRepository);
         }
         return OtpService.instance;
     }
@@ -77,6 +78,10 @@ class OtpService {
                 default:
                     throw new errors_util_1.BadRequestError('Invalid otp type');
             }
+            // Convert duration to Date object
+            const expiryDate = new Date(Date.now() + duration * 60 * 1000);
+            // Save OTP to database
+            yield this.userRepository.findAndUpdateOTP(email, otp, expiryDate);
             const emailTo = email;
             const mail = new email_1.default(emailTo);
             yield mail.send(htmlContent, subject);
@@ -90,9 +95,9 @@ class OtpService {
                 throw new errors_util_1.NotFoundError('User not found');
             }
             const { id } = user;
-            // Get the otp from the redis cache
-            const hashedOtp = yield redis.get(`${type}:${id}`);
-            if (!hashedOtp) {
+            // Get the saved OTP and check expiry
+            const { otp: hashedOtp, otpExpiry } = yield this.userRepository.getOTP(email);
+            if (!hashedOtp || !otpExpiry || new Date() > otpExpiry) {
                 throw new errors_util_1.BadRequestError('Expired or invalid OTP');
             }
             const isValidOtp = yield this.hashData.verifyHashedData(otp, hashedOtp);

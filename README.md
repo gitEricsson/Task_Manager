@@ -1,4 +1,3 @@
-```markdown:README.md
 # Task Management System
 
 A RESTful API for managing tasks built with TypeScript, Express, and PostgreSQL using Sequelize ORM.
@@ -32,17 +31,20 @@ A RESTful API for managing tasks built with TypeScript, Express, and PostgreSQL 
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd task-management-system
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Configure environment variables:
+
 ```env
 NODE_ENV=development
 PORT=3000
@@ -58,6 +60,7 @@ REFRESH_TOKEN_EXPIRY=7d
 ```
 
 4. Database setup:
+
 ```bash
 # Create database
 npx sequelize-cli db:create
@@ -82,6 +85,7 @@ npm run test:coverage # Run tests with coverage
 ## API Documentation
 
 ### Authentication
+
 ```
 POST /api/auth/sign-up     # Register new user
 POST /api/auth/login       # Login
@@ -89,6 +93,7 @@ POST /api/auth/refresh     # Refresh token
 ```
 
 ### Tasks
+
 ```
 GET    /api/tasks         # Get all tasks (with pagination)
 POST   /api/tasks         # Create new task
@@ -97,12 +102,14 @@ DELETE /api/tasks/:id     # Delete task
 ```
 
 ### Query Parameters
+
 - `page`: Page number (default: 1)
 - `limit`: Items per page (default: 10)
 - `status`: Filter by status
 - `search`: Search in title/description
 
 ## Project Structure
+
 ```
 src/
 ├── config/         # App configuration
@@ -122,6 +129,7 @@ src/
 ## Testing
 
 The project includes comprehensive test coverage:
+
 - Unit tests for services, repositories, and controllers
 - Integration tests for API endpoints
 - Test utilities and mocks
@@ -151,4 +159,7 @@ ISC
 ## Author
 
 Ericsson Raphael
+
+```
+
 ```
